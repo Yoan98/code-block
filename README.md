@@ -2,9 +2,9 @@
 
 
 ## docker-compose
-    There are some .yml files,they can help you build local web,like gitlab,jenkins...
+There are some .yml files,they can help you build local web,like gitlab,jenkins...
 ## shell
-- DevOps
+- DevOps.sh
     The script that check your current container whether it's running , then stop container which you choose if that running.
 ## docker
 - Dockerfile
