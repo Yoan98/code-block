@@ -5,9 +5,9 @@
 There are some .yml files,they can help you build local web,like gitlab,jenkins...
 ## shell
 - DevOps.sh
-  The script that check your current container whether it's running , then stop container which you choose if that running.
+The script that check your current container whether it's running , then stop container which you choose if that running.
 ## docker
 - Dockerfile
-  A example Dockerfile in here that apply to vue on nginx.
+A example Dockerfile in here that apply to vue on nginx.
 - .dockerignore
-  It will exclude some files that is used to Dockerfile in "COPY".
+It will exclude some files that is used to Dockerfile in "COPY".
