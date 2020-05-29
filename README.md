@@ -24,3 +24,9 @@ There are some .yml files,they can help you build local web,like gitlab,jenkins.
 - request.js
     
     In request.js, there is a entry file,you can use HttpRequest class from axios.js and then export instance of that,but you should make a base config(serch on axios official) before.
+
+## websocket
+- client.js/server.js
+
+    There have two files, one is used for client, the other is used for server. Some basic function they have, like heratbeat, authorazation in jwt through sending message.
+   
