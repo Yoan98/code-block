@@ -6,7 +6,7 @@ docker build -t ${img_name}:${tag} .
 #解决掉重复容器问题
 RUNNING=$(docker inspect --format="{{ .State.Running }}" ${container_name})
 
-if [ ! -n ${RUNNING} ]; then
+if [ ! ${RUNNING} ]; then
   echo "${container_name} is not running"
 else
   echo "${container_name} is running"
