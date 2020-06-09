@@ -1,21 +1,47 @@
 import axios from 'axios'
 import errorHandle from './errorHandle'
+import store from '@/store'
+import selfConfig from '../config'
+const CancelToken = axios.CancelToken
 
 class HttpRequest {
   constructor (axiosConfig) {
     this.axiosConfig = axiosConfig
+    this.pendding = {}
   }
   // axio的基础配置
   _getConfig () {
     const config = this.axiosConfig
     return config
   }
+  removePendding (key, isRequest = false) {
+    if (this.pendding[key] && isRequest) {
+      this.pendding[key]('取消重复请求')
+      delete this.pendding[key]
+    }
+  }
   // 拦截器的配置
   interceptors (instance) {
     // Add a request interceptor
     instance.interceptors.request.use((config) => {
-      // Do something before request is sent
-      // console.log(config)
+      // Do something before request is sent,this config is your config of axios request
+      // 取消重复请求
+      let key = config.url + '&' + config.method
+      this.removePendding(key, true)
+      config.cancelToken = new CancelToken((c) => {
+        // An executor function receives a cancel function as a parameter
+        this.pendding[key] = c
+      })
+      // 判断是否为公共路径
+      let isPublic = false
+      selfConfig.publicList.map((path) => {
+        isPublic = isPublic || path.test(config.url)
+      })
+      const token = store.state.token
+      // 当为私有路径时，给header添加jwt的token
+      if (!isPublic && token) {
+        config.headers.Authorization = 'Bearer ' + store.state.token
+      }
       return config
     }, (err) => {
       // Do something with request error
@@ -27,6 +53,8 @@ class HttpRequest {
     instance.interceptors.response.use((res) => {
       // Any status code that lie within the range of 2xx cause this function to trigger
       // Do something with response data
+      const key = res.config.url + '&' + res.config.method
+      this.removePendding(key)
       if (res.status === 200) {
         return Promise.resolve(res.data)
       }
@@ -38,9 +66,10 @@ class HttpRequest {
       return Promise.reject(err)
     })
   }
-  // 执行axio请求
+  // 执行axios请求
   request (options) {
     const instance = axios.create()
+    // 将拦截器添加到对应的axios的实例上
     this.interceptors(instance)
     const newOptions = Object.assign(this._getConfig(), options)
 
