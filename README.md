@@ -1,8 +1,8 @@
 ### Examples files
 
 
-## docker-compose
-There are some .yml files,they can help you build local web,like gitlab,jenkins...
+## yaml
+There are some .yaml,they can help you build local web,like gitlab,jenkins...
 ## shell
 -  DevOps.sh 
 
@@ -12,21 +12,18 @@ There are some .yml files,they can help you build local web,like gitlab,jenkins.
 
     A example Dockerfile in here that apply to vue on nginx.
 -  .dockerignore
-    
+   
     It will exclude some files that is used to Dockerfile in "COPY".
-## axios
--  axios.js
+## utile
+-  front
 
-    There is a class of  **HttpRequest**  that is based on axios with interceptor, you can do anything when send a request or get a respose before.
-- errorHandle.js
-    
-    In errorHandle.js, you can add some triggered function when some erros happended.
-- request.js
-    
-    In request.js, there is a entry file,you can use HttpRequest class from axios.js and then export instance of that,but you should make a base config(serch on axios official) before.
+    Some common files for front subject
+
+- api
+
+  Some common and config files for api subject
 
 ## websocket
 - client.js/server.js
 
     There have two files, one is used for client, the other is used for server. Some basic function they have, like heratbeat, authorazation in jwt through sending message.
-   
