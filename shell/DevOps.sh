@@ -1,6 +1,6 @@
 #!/bin/bash
 #删除已有的同名镜像
-docker rmi `docker images -q --filter reference=${img_name}`
+docker image rm `docker images -q --filter reference=${img_name}`
 
 #构建web镜像
 docker build -t ${img_name}:${tag} .
