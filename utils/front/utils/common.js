@@ -18,7 +18,7 @@ const findSort = options => {
 
 // 设置发帖时间不超7天的格式化
 // date: 日期格式
-const dateFormate = (date) => {
+const dateFormat = (date) => {
   let momentTime = moment(date)
   if (momentTime.isBefore(moment().subtract(7, 'day'))) {
     return momentTime.format('YYYY-MM-DD')
