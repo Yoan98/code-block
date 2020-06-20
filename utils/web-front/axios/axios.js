@@ -6,12 +6,19 @@ const CancelToken = axios.CancelToken
 
 class HttpRequest {
   constructor (axiosConfig) {
-    this.axiosConfig = axiosConfig
+    this.axiosConfig = axiosConfig || {}
     this.pendding = {}
   }
   // axio的基础配置
   _getConfig () {
-    const config = this.axiosConfig
+    const config = {
+      baseUrl: selfConfig.baseURL,
+      headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+      },
+      timeout: 10000,
+      ...this.axiosConfig
+    }
     return config
   }
   removePendding (key, isRequest = false) {
