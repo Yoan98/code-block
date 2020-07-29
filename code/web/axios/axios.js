@@ -1,12 +1,10 @@
 import axios from 'axios'
-import errorHandle from './errorHandle'
-import store from '@/store'
-import selfConfig from '../config'
+import errorHandle from '../errorHandle'
+import selfConfig from '../../config'
 const CancelToken = axios.CancelToken
 
 class HttpRequest {
   constructor (axiosConfig) {
-    this.axiosConfig = axiosConfig || {}
     this.pendding = {}
   }
   // axio的基础配置
@@ -16,14 +14,13 @@ class HttpRequest {
       headers: {
       'Content-Type': 'application/json;charset=utf-8'
       },
-      timeout: 10000,
-      ...this.axiosConfig
+      timeout: 5000
     }
     return config
   }
   removePendding (key, isRequest = false) {
     if (this.pendding[key] && isRequest) {
-      this.pendding[key]('取消重复请求')
+      this.pendding[key]('cancel repeat request')
       delete this.pendding[key]
     }
   }
@@ -32,23 +29,15 @@ class HttpRequest {
     // Add a request interceptor
     instance.interceptors.request.use((config) => {
       // Do something before request is sent,this config is your config of axios request
-      // 取消重复请求
+      
+      // 请求时取消重复请求
       let key = config.url + '&' + config.method
       this.removePendding(key, true)
       config.cancelToken = new CancelToken((c) => {
         // An executor function receives a cancel function as a parameter
         this.pendding[key] = c
       })
-      // 判断是否为公共路径
-      let isPublic = false
-      selfConfig.publicList.map((path) => {
-        isPublic = isPublic || path.test(config.url)
-      })
-      const token = store.state.token
-      // 当为私有路径时，给header添加jwt的token
-      if (!isPublic && token) {
-        config.headers.Authorization = 'Bearer ' + store.state.token
-      }
+      
       return config
     }, (err) => {
       // Do something with request error
@@ -60,8 +49,11 @@ class HttpRequest {
     instance.interceptors.response.use((res) => {
       // Any status code that lie within the range of 2xx cause this function to trigger
       // Do something with response data
+
+      // 返回请求时，如果还有同一个请求则取消掉
       const key = res.config.url + '&' + res.config.method
       this.removePendding(key)
+      
       if (res.status === 200) {
         return Promise.resolve(res.data)
       }
@@ -82,18 +74,21 @@ class HttpRequest {
 
     return instance(newOptions)
   }
-  get (url, config) {
-    config = Object.assign({
+  get (url, params, options) {
+    const config = {
       url: url,
-      method: 'get'
-    }, config)
+      method: 'get',
+      params,
+      ...options
+    }
     return this.request(config)
   }
-  post (url, data) {
+  post (url, data, options) {
     const config = {
       url: url,
       method: 'post',
-      data: data
+      data,
+      ...options
     }
     return this.request(config)
   }
