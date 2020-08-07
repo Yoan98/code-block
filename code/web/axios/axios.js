@@ -10,7 +10,7 @@ class HttpRequest {
   // axio的基础配置
   _getConfig () {
     const config = {
-      baseUrl: selfConfig.baseURL,
+      baseURL: selfConfig.baseURL,
       headers: {
       'Content-Type': 'application/json;charset=utf-8'
       },
