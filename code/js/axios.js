@@ -1,38 +1,50 @@
+/*
+ * @Description: 封装axio的类
+ * @Date: 2021-02-07 09:06:23
+ * @LastEditors: dashuaibi
+ * @LastEditTime: 2021-02-07 09:58:49
+ */
 import axios from 'axios'
-import errorHandle from '../errorHandle'
-import selfConfig from '../../config'
-const CancelToken = axios.CancelToken
 
+const CancelToken = axios.CancelToken
+/**
+ * @description: 封装axios，配置好的拦截器
+ * @param {axiosConfig: Object,errorHandle: (err) => void} // axios的默认配置传参与错误处理函数
+ */
 class HttpRequest {
-  constructor (axiosConfig) {
+  constructor (axiosConfig = {},errorHandle = () => {}) {
     this.pendding = {}
+    this.axiosConfig = this._getConfig(axiosConfig)
+    this.errorHandle = errorHandle
   }
   // axio的基础配置
-  _getConfig () {
+  _getConfig (axiosConfig) {
     const config = {
-      baseURL: selfConfig.baseURL,
+      baseURL: '',
       headers: {
       'Content-Type': 'application/json;charset=utf-8'
       },
-      timeout: 5000
+      timeout: 10000,
+      ...axiosConfig
     }
     return config
   }
-  removePendding (key, isRequest = false) {
+  // 取消重复请求
+  _removePendding (key, isRequest = false) {
     if (this.pendding[key] && isRequest) {
       this.pendding[key]('cancel repeat request')
       delete this.pendding[key]
     }
   }
   // 拦截器的配置
-  interceptors (instance) {
+  _interceptors (instance) {
     // Add a request interceptor
     instance.interceptors.request.use((config) => {
       // Do something before request is sent,this config is your config of axios request
       
       // 请求时取消重复请求
       let key = config.url + '&' + config.method
-      this.removePendding(key, true)
+      this._removePendding(key, true)
       config.cancelToken = new CancelToken((c) => {
         // An executor function receives a cancel function as a parameter
         this.pendding[key] = c
@@ -41,7 +53,7 @@ class HttpRequest {
       return config
     }, (err) => {
       // Do something with request error
-      errorHandle(err)
+      this.errorHandle(err)
       return Promise.reject(err)
     })
 
@@ -50,9 +62,9 @@ class HttpRequest {
       // Any status code that lie within the range of 2xx cause this function to trigger
       // Do something with response data
 
-      // 返回请求时，如果还有同一个请求则取消掉
+      // 返回请求时，将先前存入的去掉，以免影响第二次请求
       const key = res.config.url + '&' + res.config.method
-      this.removePendding(key)
+      this._removePendding(key)
       
       if (res.status === 200) {
         return Promise.resolve(res.data)
@@ -61,7 +73,7 @@ class HttpRequest {
     }, (err) => {
       // Any status codes that falls outside the range of 2xx cause this function to trigger
       // Do something with response error
-      errorHandle(err)
+      this.errorHandle(err)
       return Promise.reject(err)
     })
   }
@@ -69,8 +81,8 @@ class HttpRequest {
   request (options) {
     const instance = axios.create()
     // 将拦截器添加到对应的axios的实例上
-    this.interceptors(instance)
-    const newOptions = Object.assign(this._getConfig(), options)
+    this._interceptors(instance)
+    const newOptions = Object.assign(this.axiosConfig, options)
 
     return instance(newOptions)
   }
