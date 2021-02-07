@@ -1,3 +1,9 @@
+<!--
+ * @Description: 用于图片编辑
+ * @Date: 2021-02-07 10:11:19
+ * @LastEditors: dashuaibi
+ * @LastEditTime: 2021-02-07 10:19:42
+-->
 <template>
 	<div class="container" @touchmove.stop.prevent="">
 		<movable-area class="movable-area" :style="{width: width + 'rpx', height: height * 2 + 'rpx'}">
