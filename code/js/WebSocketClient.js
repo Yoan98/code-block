@@ -45,7 +45,7 @@ class WebScoketClient {
     }
 
     // 心跳检测
-    // this.proxyCheckServer()
+    // this.checkServer()
   }
 
   // 当客户端主动断开
@@ -72,27 +72,22 @@ class WebScoketClient {
     }, 1000)
   }
 
-  // 是否进行心跳监测的判断
-  proxyCheckServer () {
-    // 如果超过重连次数限制则主动断开连接
-    if (this.checkCount >= this.limitCheckCount) {
-      clearInterval(this.handle)
-      this._onClose()
-      console.log('服务器已断开连接')
-    } else {
-      this.checkServer()
-    }
-    this.checkCount = 0
-  }
-
   // 心跳检测
   checkServer () {
+    this.checkCount = 0
     clearInterval(this.handle)
     // 当每一次测试心跳检测数据的时间超过了所设时间，则断开重连
     this.handle = setInterval(() => {
-      this.checkCount++
-      this._onClose()
-      this._onError()
+      // 如果超过重连次数限制则主动断开连接
+      if (this.checkCount >= this.limitCheckCount) {
+        clearInterval(this.handle)
+        this._onClose()
+        console.log('服务器已断开连接')
+      } else {
+        this.checkCount++
+        this._onClose()
+        this._onError()
+      }
     }, this.timeInterval + 1000)
   }
 }
