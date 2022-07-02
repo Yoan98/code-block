@@ -98,6 +98,42 @@ function merge(arr,L,R,mid) {
         arr[L+i] = helpArr[i]
     }
 }
+
+/**
+ * 快排(复杂度最低的那个)
+ * 随机从数组中选取一个数
+ * 确定左指针与右指针
+ * 遍历，将小于随机数的数丢左边，反之右边
+ * 递归下去
+ */
+function quickSort(arr,L,R){
+    if (L === R) return
+    const randomIndex = Math.floor(L + Math.random() * (R - L))
+    const randomNum = arr[randomIndex]
+
+    let p1 = L
+    let p2 = R
+    let i = L
+
+    while(i<=p2) {
+        if (arr[i] < randomNum){
+            swap(i,p1,arr)
+            p1++
+            i++
+        }else if(arr[i] === randomNum){
+            i++
+        }else if(arr[i] > randomNum){
+            swap(i,p2,arr)
+            p2--
+        }
+    }
+
+    p1 = p1 === L ? p1 : p1 -1
+    p2 = p2 === R ? p2 : p2 +1
+
+    quickSort(arr,L,p1)
+    quickSort(arr,p2,R)
+}
 function swap(i,j,arr){
   let temp = arr[i];
   arr[i] = arr[j];

@@ -1,6 +1,6 @@
 
 import { Message } from "element-ui"
-class WebScoketClient {
+class WebSocketClient {
   constructor (config = {}, callBack = () => {}) {
     const defaultConfig = {
       url: "ws://192.168.0.207:9876/ws",
@@ -92,4 +92,4 @@ class WebScoketClient {
   }
 }
 
-export default WebScoketClient
+export default WebSocketClient

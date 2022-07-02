@@ -1,7 +1,7 @@
 /*
- * @Description: 封装axio的类
+ * @Description: 封装axios的类
  * @Date: 2021-02-07 09:06:23
- * @LastEditors: dashuaibi
+ * @LastEditors: hy
  * @LastEditTime: 2021-02-07 09:58:49
  */
 import axios from 'axios'
@@ -13,11 +13,11 @@ const CancelToken = axios.CancelToken
  */
 class HttpRequest {
   constructor (axiosConfig = {},errorHandle = () => {}) {
-    this.pendding = {}
+    this.pending = {}
     this.axiosConfig = this._getConfig(axiosConfig)
     this.errorHandle = errorHandle
   }
-  // axio的基础配置
+  // axios的基础配置
   _getConfig (axiosConfig) {
     const config = {
       baseURL: '',
@@ -30,10 +30,10 @@ class HttpRequest {
     return config
   }
   // 取消重复请求
-  _removePendding (key, isRequest = false) {
-    if (this.pendding[key] && isRequest) {
-      this.pendding[key]('cancel repeat request')
-      delete this.pendding[key]
+  _removePending (key, isRequest = false) {
+    if (this.pending[key] && isRequest) {
+      this.pending[key]('cancel repeat request')
+      delete this.pending[key]
     }
   }
   // 拦截器的配置
@@ -41,15 +41,15 @@ class HttpRequest {
     // Add a request interceptor
     instance.interceptors.request.use((config) => {
       // Do something before request is sent,this config is your config of axios request
-      
+
       // 请求时取消重复请求
       let key = config.url + '&' + config.method
-      this._removePendding(key, true)
+      this._removePending(key, true)
       config.cancelToken = new CancelToken((c) => {
         // An executor function receives a cancel function as a parameter
-        this.pendding[key] = c
+        this.pending[key] = c
       })
-      
+
       return config
     }, (err) => {
       // Do something with request error
@@ -64,8 +64,8 @@ class HttpRequest {
 
       // 返回请求时，将先前存入的去掉，以免影响第二次请求
       const key = res.config.url + '&' + res.config.method
-      this._removePendding(key)
-      
+      this._removePending(key)
+
       if (res.status === 200) {
         return Promise.resolve(res.data)
       }
