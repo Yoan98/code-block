@@ -37,7 +37,12 @@ class WebSocketClient {
 
   // 客户端接收到消息
   _onMessage (msg) {
+
     try {
+      /**
+       * 心跳检测的send逻辑（todo）
+       * 判断消息类型是否为心跳检测类型，对应做处理
+       */
       const obj = JSON.parse(msg.data)
       this.callBack(obj)
     } catch (error) {
