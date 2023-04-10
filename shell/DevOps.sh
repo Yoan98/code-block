@@ -1,28 +1,46 @@
 #!/bin/bash
+img_name='nset'
+container_name='nest'
+hostPort=3001
+env=$1
+
+echo "current enviornment ${env}"
+
+if [ -z "${env}" ]; then
+  echo "please input enviornment"
+  exit 1
+fi
+
+# #停止重复的容器
+stopConId=$(docker ps --filter="name=${container_name}" -q | xargs)
+if [ -n "${stopConId}" ]; then
+  echo "stop container start"
+  docker stop "${stopConId}"
+  echo "stop container end"
+fi
+
+# 删除重复容器
+removeConId=$(docker ps -a --filter="name=${container_name}" -q | xargs)
+if [ -n "${removeConId}" ]; then
+  echo "remove container start"
+  docker rm "${removeConId}"
+  echo "remove container end"
+fi
+
 #删除已有的同名镜像
-docker image rm `docker images -q --filter reference=${img_name}`
+imgId=$(docker images -q --filter reference=${img_name})
+if [ -n "${imgId}" ]; then
+  echo "remove image start"
+  docker image rm "${imgId}"
+  echo "remove image end"
+fi
 
 #构建web镜像
-docker build -t ${img_name}:${tag} .
+echo "build images start"
+docker build -t ${img_name} .
+echo "build images end"
 
-#解决掉重复容器问题
-RUNNING=$(docker inspect --format="{{ .State.Running }}" ${container_name})
-
-if [ ! ${RUNNING} ]; then
-  echo "${container_name} is not running"
-else
-  echo "${container_name} is running"
-
-  stopConId=$(docker ps --filter="name=${container_name}" -q | xargs)
-  if [-n ${stopConId}]; then
-    docker stop ${containerId}
-  fi
-
-  removeConId=$(docker ps -a -filter="name=${container_name}" -q | xargs)
-  if [ -n ${removeConId} ]; then
-    docker rm ${removeConId}
-  fi
-fi
-echo "${container_name} is ${RUNNING}"
 #启动容器
-docker run --name ${container_name} -itd -p ${port}:80 ${img_name}:${tag}
+echo "run container start"
+docker run --env NODE_ENV="${env}" --rm --name ${container_name} -itd -p ${hostPort}:3001 ${img_name}
+echo "run container end"
