@@ -7,11 +7,11 @@ HOST_APP_PATH='/Users/huangyuan/work-space/restaurant-qiwei'
 CONTAINER_APP_PATH='/app'
 NODE_VERSION='16.18.0'
 
-env=$1
+ENV=$1
 
-echo "current enviornment ${env}"
+echo "current enviornment ${ENV}"
 
-if [ -z "${env}" ]; then
+if [ -z "${ENV}" ]; then
   echo "please input enviornment"
   exit 1
 fi
@@ -25,14 +25,16 @@ if [ ! "${imgId}" ]; then
   echo "build node-nest end"
 fi
 
-##停止重复的容器
-stopConId=$(docker ps --filter="name=${CONTAINER_NAME}" -q | xargs)
-if [ -n "${stopConId}" ]; then
-  echo "stop container start"
-  docker stop "${stopConId}"
-  echo "stop container end"
+# 后期考虑优化 停掉容器时 如果编译失败的问题
+##删除重复的容器
+nodeConId=$(docker ps -a --filter="name=${CONTAINER_NAME}" -q | xargs)
+if [ -n "${nodeConId}" ]; then
+  echo "stop rm container start"
+  docker stop "${nodeConId}"
+  docker rm -v "${nodeConId}"
+  echo "stop rm container end"
 fi
 
 echo "node-nest run start"
-docker run --rm --name ${CONTAINER_NAME} -v ${HOST_APP_PATH}:${CONTAINER_APP_PATH} -it -p ${HOST_PORT}:${CONTAINER_PORT} ${IMAGE_NAME} bash -c "yarn && yarn run build && yarn start:${env}"
+docker run --restart=always --name ${CONTAINER_NAME} -v ${HOST_APP_PATH}:${CONTAINER_APP_PATH} -it -p ${HOST_PORT}:${CONTAINER_PORT} ${IMAGE_NAME} bash -c "yarn && yarn run build && yarn start:${ENV}"
 echo "node-nest run end"
