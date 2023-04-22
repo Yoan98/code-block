@@ -3,17 +3,16 @@ ARG NODE_VERSION
 FROM node:${NODE_VERSION}
 
 RUN mkdir -p /app && \
-  mkdir -p /opt/node/yarn_global && \
-  mkdir -p /opt/node/yarn_cache && \
-  yarn config set registry https://registry.npmmirror.com --global && \
-  yarn config set disturl https://npmmirror.com/dist --global && \
-  yarn config set phantomjs_cdnurl http://npmmirror.com/mirrors/phantomjs --global && \
-  yarn config set prefix "/opt/node/yarn_global" --global && \
-  yarn config set cache "/opt/node/yarn_cache" --global
+  mkdir -p /opt/node/node_global && \
+  mkdir -p /opt/node/node_cache && \
+  yarn config set registry https://registry.npmmirror.com && \
+  yarn config set prefix "/opt/node/node_global" && \
+  yarn config set cache-folder "/opt/node/node_cache"
 
-#    yarn config list && \
-RUN yarn config set prefix "/opt/node/yarn_global" && \
-  yarn config set cache "/opt/node/yarn_cache"
+RUN yarn global add pm2@5.3.0
+
+RUN ln -s /opt/node/node_global/bin/pm2 /usr/local/bin/pm2 && \
+  ln -s /opt/node/node_global/bin/pm2-runtime /usr/local/bin/pm2-runtime
 
 VOLUME ["/opt", "/app" ]
 WORKDIR /app
